@@ -265,7 +265,7 @@ def _get_notifications(request, query={}):
     is_read = query.get('is_read', None)
 
     # this will be true if we need all notifications without combining it
-    is_bulk = query.get('is_bulk', None)
+    get_bulk = query.get('get_bulk', None)
 
     if is_read == 'true':
         is_read = True
@@ -274,10 +274,10 @@ def _get_notifications(request, query={}):
     else:
         is_read = None
 
-    if is_bulk == 'true':
-        is_bulk = True
-    else:
+    if get_bulk == 'true':
         is_bulk = False
+    else:
+        is_bulk = True
 
     if topic == 'owner':
         total, notifications = notification_controllers.search_owner_notifications(request,
@@ -297,22 +297,8 @@ def _get_notifications(request, query={}):
                                                                                    type=query.get(
                                                                                        'type', None),
                                                                                    is_bulk=is_bulk)
-
-        if is_bulk:
-            notifications = [utils.serializer(notify)
-                             for notify in notifications]
-        else:
-            notifications = [{
-                'id': notify[0],
-                'message': (notify[1] + ' ' + notify[4] + ' ' + settings.NOTIFICATION_MESSAGE['owner'][notify[3]]['bulk'] + '.') if notify[2] else notify[1],
-                'is_bulk': notify[2],
-                'type': notify[3],
-                'resource': notify[4],
-                'owner_email': notify[5],
-                'created_at': notify[6].isoformat(),
-                'first_created_at': notify[7].isoformat(),
-                'is_read': True if notify[8] == 1 else False
-            } for notify in notifications]
+        
+        notifications = [utils.serializer(notify) for notify in notifications]
 
     elif topic == 'group':
         total, notifications = notification_controllers.search_group_notifications(request,

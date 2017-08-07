@@ -24,9 +24,68 @@ def add_owner_notification(db_session, message, type, resource, resource_id, own
     :param is_email_sent: Check if email has been sent for the notification or not.
     :return: OwnerNotification
     """
-    notify = OwnerNotification(message=message, type=type, resource=resource, resource_id=resource_id,
-                               owner_email=owner_email, is_read=is_read, is_email_sent=is_email_sent)
-    db_session.add(notify)
+    similar_notify = db_session.query(OwnerNotification).filter(
+        OwnerNotification.owner_email.ilike(owner_email), OwnerNotification.is_bulk.is_(True))
+
+    prev_notify_query = similar_notify.order_by(
+        desc(OwnerNotification.created_at)).first()
+
+    session_commands = []
+
+    if prev_notify_query is not None:
+        prev_notify = utils.serializer(prev_notify_query)
+        # Check if the last notification is of same type and resource as
+        # current one
+        if prev_notify['type'] == type and prev_notify['resource'] == resource:
+            # Check if last notification is a bulk notification or a normal
+            # one; Instead of having another attribute for this we use
+            # first_created_at as a check
+
+            notify = OwnerNotification(message=message, type=type, resource=resource, resource_id=resource_id,
+                                       owner_email=owner_email, is_read=is_read, is_email_sent=is_email_sent)
+
+            if prev_notify.get('first_created_at', None) is None:
+                bulk_notify = OwnerNotification(message='2',
+                                                type=type,
+                                                resource=resource,
+                                                resource_id=resource_id,
+                                                owner_email=owner_email,
+                                                is_read=is_read,
+                                                is_email_sent=is_email_sent,
+                                                is_bulk=True,
+                                                first_created_at=datetime.strptime(prev_notify['created_at'], "%Y-%m-%dT%H:%M:%S.%f"))
+            else:
+                bulk_notify = OwnerNotification(message=str(int(prev_notify['message']) + 1),
+                                                type=type,
+                                                resource=resource,
+                                                resource_id=resource_id,
+                                                owner_email=owner_email,
+                                                is_read=is_read,
+                                                is_email_sent=is_email_sent,
+                                                is_bulk=True,
+                                                first_created_at=datetime.strptime(prev_notify['first_created_at'], "%Y-%m-%dT%H:%M:%S.%f"))
+
+                delete_query = db_session.query(OwnerNotification).filter(
+                    OwnerNotification.id == prev_notify['id']).delete(synchronize_session=False)
+
+            similar_notify = similar_notify.filter(OwnerNotification.type == type, OwnerNotification.resource == resource).update({
+                'is_bulk': False}, synchronize_session=False)
+
+            session_commands = [notify, bulk_notify]
+
+        else:
+            notify = OwnerNotification(message=message, type=type, resource=resource, resource_id=resource_id,
+                                       owner_email=owner_email, is_read=is_read, is_email_sent=is_email_sent, is_bulk=True)
+
+            session_commands = [notify]
+
+    else:
+        notify = OwnerNotification(message=message, type=type, resource=resource, resource_id=resource_id,
+                                   owner_email=owner_email, is_read=is_read, is_email_sent=is_email_sent, is_bulk=True)
+        session_commands = [notify]
+
+    db_session.add_all(session_commands)
+
     return notify
 
 
@@ -69,9 +128,9 @@ def add_group_notification(db_session, message, type, resource, resource_id, gro
 @with_session
 def get_notification_count(db_session, owner_email, is_read=None):
     owner_query = db_session.query(OwnerNotification).filter(
-        OwnerNotification.owner_email.ilike(owner_email))
+        OwnerNotification.owner_email.ilike(owner_email), OwnerNotification.is_bulk.is_(True))
     group_query = db_session.query(GroupNotification).filter(
-        GroupNotification.member_email.ilike(owner_email))
+        GroupNotification.member_email.ilike(owner_email), OwnerNotification.is_bulk.is_(True))
 
     if is_read is not None:
         owner_query = owner_query.filter(
@@ -83,58 +142,23 @@ def get_notification_count(db_session, owner_email, is_read=None):
 
 
 @with_session
-def find_owner_notifications(db_session, owner_email, is_read, limit, offset, is_bulk=False, created_at=None, first_created_at=None, resource=None, type=None):
+def find_owner_notifications(db_session, owner_email, is_read, limit, offset, is_bulk=True, created_at=None, first_created_at=None, resource=None, type=None):
 
-    if is_bulk:
-        # Get all notification without merging similar notifications into 1
-        cte_query = db_session.query(OwnerNotification)
-
-        if created_at is not None and first_created_at is not None and resource is not None and type is not None:
-            cte_query = cte_query.filter(OwnerNotification.created_at <= datetime.strptime(created_at, "%Y-%m-%dT%H:%M:%S.%f"),
-                                         OwnerNotification.created_at >= datetime.strptime(
-                                             first_created_at, "%Y-%m-%dT%H:%M:%S.%f"),
-                                         OwnerNotification.resource == resource,
-                                         OwnerNotification.type == type)
-    else:
-        # Get notifications by merging similar ones
-        cte_query = db_session.query(OwnerNotification.id,
-                                     OwnerNotification.message,
-                                     OwnerNotification.type,
-                                     OwnerNotification.resource,
-                                     case([(OwnerNotification.is_read, 1)],
-                                          else_=0).label('is_read'),
-                                     OwnerNotification.owner_email,
-                                     OwnerNotification.created_at,
-                                     (func.row_number().over(order_by=desc(OwnerNotification.created_at)) - func.row_number().over(partition_by=OwnerNotification.type, order_by=desc(OwnerNotification.created_at))).label('row_number'))
+    query = db_session.query(OwnerNotification).filter(OwnerNotification.is_bulk.is_(
+        is_bulk)).order_by(desc(OwnerNotification.created_at))
 
     if owner_email is not None:
-        cte_query = cte_query.filter(
-            OwnerNotification.owner_email.ilike(owner_email))
+        query = query.filter(OwnerNotification.owner_email.ilike(owner_email))
 
     if is_read is not None:
-        cte_query = cte_query.filter(OwnerNotification.is_read.is_(is_read))
+        query = query.filter(OwnerNotification.is_read.is_(is_read))
 
-    if is_bulk:
-        query = cte_query.order_by(desc(OwnerNotification.created_at))
-    else:
-        cte_query = cte_query.cte('owner_notification_cte')
-
-        query = db_session.query(func.max(cte_query.c.id).label('id'),
-                                 case([(func.count(cte_query.c.owner_email) > 1,
-                                        cast(func.count(cte_query.c.owner_email), String))], else_=func.max(cte_query.c.message)).label('message'),
-                                 case([(func.count(cte_query.c.owner_email) > 1, True)],
-                                      else_=False).label('is_bulk'),
-                                 cte_query.c.type.label('type'),
-                                 cte_query.c.resource.label('resource'),
-                                 func.max(cte_query.c.owner_email).label(
-                                     'owner_email'),
-                                 func.max(cte_query.c.created_at).label(
-                                     'created_at'),
-                                 func.min(cte_query.c.created_at).label(
-                                     'first_created_at'),
-                                 func.max(cte_query.c.is_read)) \
-            .group_by(cte_query.c.type, cte_query.c.row_number, cte_query.c.resource) \
-            .order_by(desc(func.max(cte_query.c.created_at)))
+    if created_at is not None and first_created_at is not None and resource is not None and type is not None:
+        query = query.filter(OwnerNotification.created_at <= datetime.strptime(created_at, "%Y-%m-%dT%H:%M:%S.%f"),
+                             OwnerNotification.created_at >= datetime.strptime(
+                                 first_created_at, "%Y-%m-%dT%H:%M:%S.%f"),
+                             OwnerNotification.resource == resource,
+                             OwnerNotification.type == type)
 
     total = query.count()
 
@@ -220,6 +244,41 @@ def read_owner_notifications(db_session, owner_email, resource=None, type=None, 
     if notification_id is not None:
         query = query.filter(OwnerNotification.id == notification_id)
         notify = query.one_or_none()
+        serialized_notify = utils.serializer(notify)
+        bulk_notify_query = db_session.query(OwnerNotification).filter(OwnerNotification.owner_email.ilike(owner_email),
+                                                                       OwnerNotification.type == serialized_notify[
+                                                                           'type'],
+                                                                       OwnerNotification.resource == serialized_notify[
+                                                                           'resource'],
+                                                                       OwnerNotification.is_bulk.is_(
+                                                                           True),
+                                                                       OwnerNotification.is_read.is_(
+                                                                           False),
+                                                                       OwnerNotification.created_at >= datetime.strptime(
+                                                                           serialized_notify['created_at'], "%Y-%m-%dT%H:%M:%S.%f"),
+                                                                       OwnerNotification.first_created_at != None,
+                                                                       OwnerNotification.first_created_at <= datetime.strptime(
+                                                                           serialized_notify['created_at'], "%Y-%m-%dT%H:%M:%S.%f")
+                                                                       )
+        bulk_notify = bulk_notify_query.one_or_none()
+        if bulk_notify is not None:
+            bulk_notify = utils.serializer(bulk_notify)
+            total_unread_notify = db_session.query(OwnerNotification).filter(OwnerNotification.owner_email.ilike(owner_email),
+                                                                             OwnerNotification.type == bulk_notify[
+                                                                                 'type'],
+                                                                             OwnerNotification.resource == bulk_notify[
+                                                                                 'resource'],
+                                                                             OwnerNotification.is_read.is_(
+                                                                                 False),
+                                                                             OwnerNotification.created_at < datetime.strptime(
+                                                                                 bulk_notify['created_at'], "%Y-%m-%dT%H:%M:%S.%f"),
+                                                                             OwnerNotification.created_at >= datetime.strptime(
+                                                                                 bulk_notify['first_created_at'], "%Y-%m-%dT%H:%M:%S.%f")
+                                                                             ).count()
+            if total_unread_notify <= 1:
+                bulk_notify_query = bulk_notify_query.update(
+                    {'is_read': True}, synchronize_session=False)
+
     else:
         if resource is not None:
             query = query.filter(OwnerNotification.resource == resource)

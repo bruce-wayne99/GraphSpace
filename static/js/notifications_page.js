@@ -204,7 +204,7 @@ var notificationsPage = {
         operationEvents: {
             'click .click-message': function(e, value, row, index) {
                 // On clicking on the notification
-                if (row["is_bulk"]) {
+                if (row["first_created_at"]) {
                     if (!row["is_read"]){
                         notificationsPage.ownerNotificationsTable.markAsRead(e, value, row, index)
                     }
@@ -215,7 +215,7 @@ var notificationsPage = {
                         created_at: row['created_at'],
                         first_created_at: row['first_created_at'],
                         resource: row['resource'],
-                        is_bulk: row['is_bulk'],
+                        get_bulk: row['is_bulk'],
                         sub_table: true
                     }, [{
                             field: 'message',
@@ -296,7 +296,7 @@ var notificationsPage = {
             params.data["created_at"] = params.options["created_at"]
             params.data["first_created_at"] = params.options["first_created_at"]
             params.data["resource"] = params.options["resource"]
-            params.data["is_bulk"] = params.options["is_bulk"]
+            params.data["get_bulk"] = params.options["get_bulk"]
 
             apis.notifications.get(params.data,
                 uri = null,
@@ -365,7 +365,7 @@ var notificationsPage = {
         operationEvents: {
             'click .click-message': function(e, value, row, index) {
                 // On clicking on the notification
-                if (row["is_bulk"]) {
+                if (row["first_created_at"]) {
                     if (!row["is_read"]){
                         notificationsPage.groupNotificationsTable.markAsRead(e, value, row, index)
                     }
@@ -377,7 +377,7 @@ var notificationsPage = {
                         created_at: row['created_at'],
                         first_created_at: row['first_created_at'],
                         resource: row['resource'],
-                        is_bulk: row['is_bulk']
+                        get_bulk: row['is_bulk']
                     }, [{
                             field: 'message',
                             title: 'Sub-notifications',
@@ -428,7 +428,7 @@ var notificationsPage = {
             params.data["created_at"] = params.options["created_at"]
             params.data["first_created_at"] = params.options["first_created_at"]
             params.data["resource"] = params.options["resource"]
-            params.data["is_bulk"] = params.options["is_bulk"]
+            params.data["get_bulk"] = params.options["get_bulk"]
 
             console.log(params.data)
 
