@@ -29,6 +29,10 @@ class OwnerNotification(IDMixin, TimeStampMixin, EmailMixin, Base):
     owner = relationship(
         "User", back_populates="owned_notifications", uselist=False)
 
+    # Used for bulk notifications
+    first_created_at = Column(TIMESTAMP, nullable=True)
+    is_bulk = Column(Boolean, default=False)
+
     constraints = ()
     indices = ()
 
@@ -38,7 +42,7 @@ class OwnerNotification(IDMixin, TimeStampMixin, EmailMixin, Base):
         return args
 
     def serialize(cls):
-        return {
+        notify = {
             'id': cls.id,
             'message': cls.message,
             'type': cls.type,
@@ -50,6 +54,14 @@ class OwnerNotification(IDMixin, TimeStampMixin, EmailMixin, Base):
             'created_at': cls.created_at.isoformat(),
             'updated_at': cls.updated_at.isoformat()
         }
+
+        if cls.first_created_at is not None:
+            notify['first_created_at'] = cls.first_created_at.isoformat()
+
+        if cls.is_bulk is not None:
+            notify['is_bulk'] = cls.is_bulk
+
+        return notify
 
 
 class GroupNotification(IDMixin, TimeStampMixin, EmailMixin, Base):

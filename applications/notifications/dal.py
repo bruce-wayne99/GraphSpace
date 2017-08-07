@@ -1,10 +1,12 @@
 from sqlalchemy import and_, or_, desc, asc, func
 from sqlalchemy.orm import joinedload, subqueryload
+from datetime import datetime
 
 from applications.notifications.models import *
 from applications.users.models import *
 import applications.users.dal as db_users
 from graphspace.wrappers import with_session
+from graphspace import utils
 
 
 @with_session
@@ -22,9 +24,69 @@ def add_owner_notification(db_session, message, type, resource, resource_id, own
     :param is_email_sent: Check if email has been sent for the notification or not.
     :return: OwnerNotification
     """
-    notify = OwnerNotification(message=message, type=type, resource=resource, resource_id=resource_id,
-                               owner_email=owner_email, is_read=is_read, is_email_sent=is_email_sent)
-    db_session.add(notify)
+
+    similar_notify = db_session.query(OwnerNotification).filter(
+        OwnerNotification.owner_email.ilike(owner_email), OwnerNotification.is_bulk.is_(True))
+
+    prev_notify_query = similar_notify.order_by(
+        desc(OwnerNotification.created_at)).first()
+
+    session_commands = []
+
+    if prev_notify_query is not None:
+        prev_notify = utils.serializer(prev_notify_query)
+        # Check if the last notification is of same type and resource as
+        # current one
+        if prev_notify['type'] == type and prev_notify['resource'] == resource:
+            # Check if last notification is a bulk notification or a normal
+            # one; Instead of having another attribute for this we use
+            # first_created_at as a check
+            
+            notify = OwnerNotification(message=message, type=type, resource=resource, resource_id=resource_id,
+                                       owner_email=owner_email, is_read=is_read, is_email_sent=is_email_sent)
+
+            if prev_notify.get('first_created_at', None) is None:
+                bulk_notify = OwnerNotification(message='2',
+                                                type=type,
+                                                resource=resource,
+                                                resource_id=resource_id,
+                                                owner_email=owner_email,
+                                                is_read=is_read,
+                                                is_email_sent=is_email_sent,
+                                                is_bulk=True,
+                                                first_created_at=datetime.strptime(prev_notify['created_at'], "%Y-%m-%dT%H:%M:%S.%f"))
+            else:
+                bulk_notify = OwnerNotification(message=str(int(prev_notify['message']) + 1),
+                                                type=type,
+                                                resource=resource,
+                                                resource_id=resource_id,
+                                                owner_email=owner_email,
+                                                is_read=is_read,
+                                                is_email_sent=is_email_sent,
+                                                is_bulk=True,
+                                                first_created_at=datetime.strptime(prev_notify['first_created_at'], "%Y-%m-%dT%H:%M:%S.%f"))
+
+                delete_query = db_session.query(OwnerNotification).filter(
+                    OwnerNotification.id == prev_notify['id']).delete(synchronize_session=False)
+
+            similar_notify = similar_notify.filter(OwnerNotification.type == type, OwnerNotification.resource == resource).update({
+                'is_bulk': False}, synchronize_session=False)
+
+            session_commands = [notify, bulk_notify]
+
+        else:
+            notify = OwnerNotification(message=message, type=type, resource=resource, resource_id=resource_id,
+                                       owner_email=owner_email, is_read=is_read, is_email_sent=is_email_sent, is_bulk=True)
+
+            session_commands = [notify]
+
+    else:
+        notify = OwnerNotification(message=message, type=type, resource=resource, resource_id=resource_id,
+                                   owner_email=owner_email, is_read=is_read, is_email_sent=is_email_sent, is_bulk=True)
+        session_commands = [notify]
+
+    db_session.add_all(session_commands)
+
     return notify
 
 
@@ -69,7 +131,7 @@ def get_notification_count(db_session, owner_email, is_read=None):
             OwnerNotification.is_read.is_(is_read))
         group_query = group_query.filter(
             GroupNotification.is_read.is_(is_read))
-        
+
     return owner_query.count() + group_query.count()
 
 
