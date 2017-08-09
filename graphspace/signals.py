@@ -12,10 +12,11 @@ def send_message(group_name, type, message):
 
 def send_notification(notification, topic):
     notification = utils.serializer(notification)
-    group_name_attr = {
-        "owner": "owner_email",
-        "group": "member_email"
-    }
-    notification["topic"] = topic
-    send_message(group_name=notification[group_name_attr[
-                 topic]], type="notification", message=notification)
+    if notification['is_bulk']:
+        group_name_attr = {
+            "owner": "owner_email",
+            "group": "member_email"
+        }
+        notification["topic"] = topic
+        send_message(group_name=notification[group_name_attr[
+                     topic]], type="notification", message=notification)

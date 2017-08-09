@@ -297,8 +297,6 @@ def _get_notifications(request, query={}):
                                                                                    type=query.get(
                                                                                        'type', None),
                                                                                    is_bulk=is_bulk)
-        
-        notifications = [utils.serializer(notify) for notify in notifications]
 
     elif topic == 'group':
         total, notifications = notification_controllers.search_group_notifications(request,
@@ -321,31 +319,13 @@ def _get_notifications(request, query={}):
                                                                                        'type', None),
                                                                                    is_bulk=is_bulk)
 
-        if is_bulk:
-            notifications = [utils.serializer(notify)
-                             for notify in notifications]
-        else:
-            notifications = [{
-                'id': notify[0],
-                'message': (notify[1] + ' ' + notify[4] + ' ' + settings.NOTIFICATION_MESSAGE['group'][notify[3]]['bulk'] + '.') if notify[2] else notify[1],
-                'is_bulk': notify[2],
-                'type': notify[3],
-                'resource': notify[4],
-                'owner_email': notify[5],
-                'member_email': notify[6],
-                'group_id': notify[7],
-                'created_at': notify[8].isoformat(),
-                'first_created_at': notify[9].isoformat(),
-                'is_read': True if notify[10] == 1 else False
-            } for notify in notifications]
-
     else:
         raise BadRequest(
             request, error_code=ErrorCodes.Validation.BadRequest, args=get_request_user(request))
 
     return {
         'total': total,
-        'notifications': notifications
+        'notifications': [utils.serializer(notify) for notify in notifications]
     }
 
 

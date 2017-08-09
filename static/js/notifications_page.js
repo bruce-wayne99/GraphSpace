@@ -172,7 +172,7 @@ var notificationsPage = {
                 resource: row['resource']
             }
             apis.notifications.read(
-                id = row['is_bulk'] ? null : row['id'],
+                id = row['first_created_at'] ? null : row['id'],
                 data = data,
                 successCallback = function(response) {
                     // This method is called when notifications are successfully fetched.
@@ -330,7 +330,7 @@ var notificationsPage = {
                 resource: row['resource']
             }
             apis.notifications.read(
-                id = row['is_bulk'] ? null : row['id'],
+                id = row['first_created_at'] ? null : row['id'],
                 data = data,
                 successCallback = function(response) {
                     // This method is called when notifications are successfully fetched.
