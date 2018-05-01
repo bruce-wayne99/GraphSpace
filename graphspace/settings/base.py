@@ -171,15 +171,26 @@ NOTIFICATION_GROUP_INTERVAL = 24 * 60 * 60 # 24 hours
 NOTIFICATION_MESSAGE = {
 	'owner': {
 		'upload': {
+			#graph: '{owner} uploaded a new graph {name}.',
+			#bulk: '{owner} uploaded {number} graphs.'
 			'graph': 'New graph {name} uploaded.',
 			'bulk': 'uploads'
 		},
 		'create': {
+			#'layout': '{owner} created a new layout {name} for graph {gname}.',
+			#'group': '{owner} created a new group {name}.',
+			#'bulk layouts': '{owner} created {number} layouts.',
+			#'bulk groups': '{owner} created {number} groups.'
 			'layout': 'New layout {name} created.',
-			'group': 'New group {name} created.',
+			#'group': 'New group {name} created.',
+			'group': '{owner} created new group {name}.',
 			'bulk': 'additions'
 		},
 		'delete': {
+			#'graph': '{owner} deleted graph {name}.',
+			#'layout': '{owner} deleted layout {name} for graph {gname}.',
+			#'group': '{owner} deleted group {name}.',
+			#'bulk graphs': {owner} deleted {number} graphs.',
 			'graph': 'Graph {name} deleted.',
 			'layout': 'Layout {name} deleted.',
 			'group': 'Group {name} deleted.',
@@ -194,21 +205,21 @@ NOTIFICATION_MESSAGE = {
 	},
 	'group':{
 		'share': {
-			'graph': 'Graph {name} shared.',
-			'layout': 'Layout {name} shared.',
+			'graph': '{owner} shared graph {name}.',
+			'layout': '{owner} shared layout {name}.',
 			'bulk': 'shared'
 		},
 		'unshare': {
-			'graph': 'Graph {name} removed.',
-			'layout': 'Layout {name} removed.',
+			'graph': '{owner} removed graph {name}.',
+			'layout': '{owner} removed layout {name}.',
 			'bulk': 'removed'
 		},
 		'add': {
-			'member': 'New group member {name} added.',
+			'member': '{owner} added {name} to the group.',
 			'bulk': 'additions'
 		},
 		'remove': {
-			'member': 'Group member {name} removed.',
+			'member': '{owner} removed {name} from the group.',
 			'bulk': 'removed'
 		}
 	}

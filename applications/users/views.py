@@ -364,7 +364,7 @@ def _add_group(request, group={}):
         # user
         producer.send_message('owner', {
             'owner_email': group.get('owner_email', None),
-            'message': settings.NOTIFICATION_MESSAGE['owner']['create']['group'].format(name=request.POST.get('name', None)),
+            'message': settings.NOTIFICATION_MESSAGE['owner']['create']['group'].format(name=request.POST.get('name', None), owner=group.get('owner_email', None)),
             'resource': 'group',
             'resource_id': return_value.get('id', None),
             'type': 'create'

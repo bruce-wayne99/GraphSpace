@@ -159,6 +159,7 @@ var userSocket = {
         // Different types of communication over sockets
         switch (data.type) {
             case "notification":
+				alert(message.data);
                 userSocket.notification(data.message);
                 break;
         }

@@ -184,7 +184,7 @@ var notificationsPage = {
             if (!row.is_read) {
                 return [
                     '<a class="mark-as-read" href="javascript:void(0)" title="Mark as read">',
-                    '<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>',
+                    '<span class="glyphicon glyphicon-ok mark-as-read-icon" aria-hidden="true"></span>',
                     '</a>'
                 ].join('');
             }
@@ -280,8 +280,8 @@ var notificationsPage = {
                         {
                             field: 'created_at',
                             valign: 'center',
-                            align: 'center',
-                            formatter: utils.dateFormatter,
+                            //align: 'center',
+                            formatter: utils.dateFormatter
                         }
                         /*,
                             {
@@ -439,8 +439,8 @@ var notificationsPage = {
                         {
                             field: 'created_at',
                             valign: 'center',
-                            align: 'center',
-                            formatter: utils.dateFormatter,
+                            //align: 'center',
+                            formatter: utils.dateFormatter
                         }
                         /*,
                         {
@@ -530,6 +530,7 @@ var notificationsPage = {
                             .appendTo(li)
                         var span = $('<span/>')
                             .addClass('badge')
+							.addClass('graphspace-notification-badge')
                             .text(response.groups[i]['count'])
                             .appendTo(a)
 
@@ -553,7 +554,7 @@ var notificationsPage = {
                                 '-',
                                 response.groups[i]['group']['id'],
                                 '-as-read" title="Mark all as read">',
-                                '<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>',
+                                '<span class="glyphicon glyphicon-ok mark-as-read-icon" aria-hidden="true"></span>',
                                 '</a>'
                             ]
 
@@ -572,18 +573,22 @@ var notificationsPage = {
                                         title: response.groups[i]['group']['name'],
                                         valign: 'center',
                                         formatter: notificationsPage.groupNotificationsTable.messageFormatter,
-                                        events: notificationsPage.groupNotificationsTable.operationEvents
+                                        events: notificationsPage.groupNotificationsTable.operationEvents,
+										width: '75%'
                                     },
+									/*
                                     {
                                         field: 'owner_email',
                                         align: 'right',
                                         valign: 'center',
                                     },
+									*/
                                     {
                                         field: 'created_at',
                                         valign: 'center',
-                                        align: 'center',
+                                        align: 'left',
                                         formatter: utils.dateFormatter,
+										width: '20%'
                                     },
                                     {
                                         field: 'operations',
@@ -591,7 +596,8 @@ var notificationsPage = {
                                         valign: 'center',
                                         align: 'right',
                                         formatter: notificationsPage.notificationsTable.operationsFormatter,
-                                        events: notificationsPage.groupNotificationsTable.operationEvents
+                                        events: notificationsPage.groupNotificationsTable.operationEvents,
+										width: '5%'
                                     }
                                 ]
                             })
