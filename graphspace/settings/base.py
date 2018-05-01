@@ -175,19 +175,19 @@ NOTIFICATION_MESSAGE = {
 			'bulk': 'uploaded.'
 		},
 		'create': {
-			'layout': '{owner} created a new layout {name}.',
+			'layout': '{owner} created a new layout {name} for graph {graph_id}.',
 			'group': '{owner} created new group {name}.',
 			'bulk': 'created.'
 		},
 		'delete': {
 			'graph': '{owner} deleted graph {name}.',
-			'layout': '{owner} deleted layout {name}.',
+			'layout': '{owner} deleted layout {name} for graph {graph_id}.',
 			'group': '{owner} deleted group {name}.',
 			'bulk': 'removed.'
 		},
 		'update': {
 			'graph': '{owner} updated graph {name}.', 
-			'layout': '{owner} updated layout {name}.',
+			'layout': '{owner} updated layout {name} for graph {graph_id}.',
 			'group': '{owner} updated group {name}.',
 			'bulk': 'updated.'
 		}
@@ -195,12 +195,12 @@ NOTIFICATION_MESSAGE = {
 	'group':{
 		'share': {
 			'graph': '{owner} shared graph {name} with the group.',
-			'layout': '{owner} shared layout {name} with the group.',
+			'layout': '{owner} shared layout {name} for graph {graph_id} with the group.',
 			'bulk': 'shared with the group.'
 		},
 		'unshare': {
 			'graph': '{owner} removed graph {name} from the group.',
-			'layout': '{owner} removed layout {name} from the group.',
+			'layout': '{owner} removed layout {name} for graph {graph_id} from the group.',
 			'bulk': 'removed from the group.'
 		},
 		'add': {
