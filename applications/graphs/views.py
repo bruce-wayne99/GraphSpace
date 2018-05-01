@@ -1208,7 +1208,7 @@ def _delete_layout(request, graph_id, layout_id):
     # Notification
     producer.send_message('owner', {
         'owner_email': get_request_user(request),
-        'message': settings.NOTIFICATION_MESSAGE['owner']['delete']['layout'].format(name=return_value.get('name', None)),
+        'message': settings.NOTIFICATION_MESSAGE['owner']['delete']['layout'].format(name=return_value.get('name', None), owner=get_request_user(request)),
         'resource': 'layout',
         'resource_id': layout_id,
         'type': 'delete'
