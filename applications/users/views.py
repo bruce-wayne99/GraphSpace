@@ -519,7 +519,7 @@ def _update_group(request, group_id, group={}):
 
     producer.send_message('owner', {
         'owner_email': return_value.get('owner_email', None),
-        'message': settings.NOTIFICATION_MESSAGE['owner']['update']['group'].format(name=return_value.get('name', None), , owner=return_value.get('owner_email', None)),
+        'message': settings.NOTIFICATION_MESSAGE['owner']['update']['group'].format(name=return_value.get('name', None), owner=return_value.get('owner_email', None)),
         'resource': 'group',
         'resource_id': group_id,
         'type': 'update'
