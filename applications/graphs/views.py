@@ -1073,9 +1073,8 @@ def _add_layout(request, graph_id, layout={}):
                                                       style_json=layout.get(
                                                           'style_json', None),
                                                       ))
-													  
-	layout_graph = graphs.get_graph_by_id(request, graph_id=graph_id)
-	layout_graph_name = str(layout_graph.get('owner_email', '')) + '/' + str(layout_graph.get('name', ''))
+    layout_graph = graphs.get_graph_by_id(request, graph_id=graph_id)
+    layout_graph_name = str(layout_graph.get('owner_email', '')) + '/' + str(layout_graph.get('name', ''))
 
     # Notification
     if layout.get('owner_email', None) is not None:
@@ -1145,9 +1144,8 @@ def _update_layout(request, graph_id, layout_id, layout={}):
                                                          style_json=layout.get(
                                                              'style_json', None),
                                                          ))
-														 
-	layout_graph = graphs.get_graph_by_id(request, graph_id=graph_id)
-	layout_graph_name = str(layout_graph.get('owner_email', '')) + '/' + str(layout_graph.get('name', ''))
+    layout_graph = graphs.get_graph_by_id(request, graph_id=graph_id)
+    layout_graph_name = str(layout_graph.get('owner_email', '')) + '/' + str(layout_graph.get('name', ''))
 
     # Notification
     if layout.get('is_shared', None) == 1:
@@ -1210,9 +1208,9 @@ def _delete_layout(request, graph_id, layout_id):
 
     return_value = utils.serializer(
         graphs.delete_layout_by_id(request, layout_id))
-		
-	layout_graph = graphs.get_graph_by_id(request, graph_id=graph_id)
-	layout_graph_name = str(layout_graph.get('owner_email', '')) + '/' + str(layout_graph.get('name', ''))
+
+    layout_graph = graphs.get_graph_by_id(request, graph_id=graph_id)
+    layout_graph_name = str(layout_graph.get('owner_email', '')) + '/' + str(layout_graph.get('name', ''))
 
     # Notification
     producer.send_message('owner', {
