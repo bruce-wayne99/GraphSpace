@@ -1,5 +1,5 @@
 {% extends 'base.html' %} {% block content %} {% load staticfiles %}
-<div class="container zero-padding padding-bottom-6" style="margin-top: 5px;">
+<div class="container zero-padding padding-bottom-6" style="margin-top: 15px;">
     {% csrf_token %}
     <div class="row">
         <div class="col-md-3">
@@ -42,7 +42,7 @@
         </div>
     </div>
 </div>
-<footer class="footer">
+<footer class="footer" style="position: absolute; bottom: 0;">
     <br>Powered by <a href="https://www.djangoproject.com/">Django 1.7.6</a>
     <br><a href="http://js.cytoscape.org/">Cytoscape.js 2.5.0</a>
 </footer>
