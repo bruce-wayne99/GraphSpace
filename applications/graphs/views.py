@@ -1073,6 +1073,9 @@ def _add_layout(request, graph_id, layout={}):
                                                       style_json=layout.get(
                                                           'style_json', None),
                                                       ))
+													  
+	layout_graph = graphs.get_graph_by_id(request, graph_id=graph_id)
+	layout_graph_name = str(layout_graph.get('owner_email', '')) + '/' + str(layout_graph.get('name', ''))
 
     # Notification
     if layout.get('owner_email', None) is not None:
@@ -1080,7 +1083,7 @@ def _add_layout(request, graph_id, layout={}):
         # user
         producer.send_message('owner', {
             'owner_email': layout.get('owner_email', None),
-            'message': settings.NOTIFICATION_MESSAGE['owner']['create']['layout'].format(name=layout.get('name', ''), owner=layout.get('owner_email', None), graph_id=layout.get('graph_id', None)),
+            'message': settings.NOTIFICATION_MESSAGE['owner']['create']['layout'].format(name=layout.get('name', ''), owner=layout.get('owner_email', None), graph_id=layout_graph_name),
             'resource': 'layout',
             'resource_id': return_value['id'],
             'type': 'create'
@@ -1142,13 +1145,16 @@ def _update_layout(request, graph_id, layout_id, layout={}):
                                                          style_json=layout.get(
                                                              'style_json', None),
                                                          ))
+														 
+	layout_graph = graphs.get_graph_by_id(request, graph_id=graph_id)
+	layout_graph_name = str(layout_graph.get('owner_email', '')) + '/' + str(layout_graph.get('name', ''))
 
     # Notification
     if layout.get('is_shared', None) == 1:
         group_ids = [utils.serializer(group)['id'] for group in users.get_groups_by_graph_id(request, graph_id=graph_id)]
         producer.send_message('group', {
             'group_ids': group_ids,   
-            'message': settings.NOTIFICATION_MESSAGE['group']['share']['layout'].format(name=return_value.get('name',''), owner=request.session.get('uid', None), graph_id=layout.get('graph_id', None)),
+            'message': settings.NOTIFICATION_MESSAGE['group']['share']['layout'].format(name=return_value.get('name',''), owner=request.session.get('uid', None), graph_id=layout_graph_name),
             'resource': 'layout',
             'resource_id': layout_id,
             'type': 'share',
@@ -1158,7 +1164,7 @@ def _update_layout(request, graph_id, layout_id, layout={}):
         group_ids = [utils.serializer(group)['id'] for group in users.get_groups_by_graph_id(request, graph_id=graph_id)]
         producer.send_message('group', {
             'group_ids': group_ids,   
-            'message': settings.NOTIFICATION_MESSAGE['group']['unshare']['layout'].format(name=return_value.get('name',''), owner=request.session.get('uid', None), graph_id=layout.get('graph_id', None)),
+            'message': settings.NOTIFICATION_MESSAGE['group']['unshare']['layout'].format(name=return_value.get('name',''), owner=request.session.get('uid', None), graph_id=layout_graph_name),
             'resource': 'layout',
             'resource_id': layout_id,
             'type': 'unshare',
@@ -1168,7 +1174,7 @@ def _update_layout(request, graph_id, layout_id, layout={}):
         # This code is a placeholder as GraphSpace does not have an update for layout (other than share/un-share)
         producer.send_message('owner', {
             'owner_email': layout.get('owner_email', None),
-            'message': settings.NOTIFICATION_MESSAGE['owner']['update']['layout'].format(name=layout.get('name', None), owner=layout.get('owner_email', None), graph_id=layout.get('graph_id', None)),
+            'message': settings.NOTIFICATION_MESSAGE['owner']['update']['layout'].format(name=layout.get('name', None), owner=layout.get('owner_email', None), graph_id=layout_graph_name),
             'resource': 'layout',
             'resource_id': layout_id,
             'type': 'update'
@@ -1204,11 +1210,14 @@ def _delete_layout(request, graph_id, layout_id):
 
     return_value = utils.serializer(
         graphs.delete_layout_by_id(request, layout_id))
+		
+	layout_graph = graphs.get_graph_by_id(request, graph_id=graph_id)
+	layout_graph_name = str(layout_graph.get('owner_email', '')) + '/' + str(layout_graph.get('name', ''))
 
     # Notification
     producer.send_message('owner', {
         'owner_email': get_request_user(request),
-        'message': settings.NOTIFICATION_MESSAGE['owner']['delete']['layout'].format(name=return_value.get('name', None), owner=get_request_user(request), graph_id=layout.get('graph_id', None)),
+        'message': settings.NOTIFICATION_MESSAGE['owner']['delete']['layout'].format(name=return_value.get('name', None), owner=get_request_user(request), graph_id=layout_graph_name),
         'resource': 'layout',
         'resource_id': layout_id,
         'type': 'delete'
