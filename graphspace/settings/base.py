@@ -171,56 +171,45 @@ NOTIFICATION_GROUP_INTERVAL = 24 * 60 * 60 # 24 hours
 NOTIFICATION_MESSAGE = {
 	'owner': {
 		'upload': {
-			#graph: '{owner} uploaded a new graph {name}.',
-			#bulk: '{owner} uploaded {number} graphs.'
-			'graph': 'New graph {name} uploaded.',
-			'bulk': 'uploads'
+			'graph': '{owner} uploaded a new graph {name}.',
+			'bulk': 'uploaded.'
 		},
 		'create': {
-			#'layout': '{owner} created a new layout {name} for graph {gname}.',
-			#'group': '{owner} created a new group {name}.',
-			#'bulk layouts': '{owner} created {number} layouts.',
-			#'bulk groups': '{owner} created {number} groups.'
-			'layout': 'New layout {name} created.',
-			#'group': 'New group {name} created.',
+			'layout': '{owner} created a new layout {name}.',
 			'group': '{owner} created new group {name}.',
-			'bulk': 'additions'
+			'bulk': 'created.'
 		},
 		'delete': {
-			#'graph': '{owner} deleted graph {name}.',
-			#'layout': '{owner} deleted layout {name} for graph {gname}.',
-			#'group': '{owner} deleted group {name}.',
-			#'bulk graphs': {owner} deleted {number} graphs.',
-			'graph': 'Graph {name} deleted.',
-			'layout': 'Layout {name} deleted.',
-			'group': 'Group {name} deleted.',
-			'bulk': 'removed'
+			'graph': '{owner} deleted graph {name}.',
+			'layout': '{owner} deleted layout {name}.',
+			'group': '{owner} deleted group {name}.',
+			'bulk': 'removed.'
 		},
 		'update': {
-			'graph': 'Graph {name} updated.', 
-			'layout': 'Layout {name} updated.',
-			'group': 'Group {name} updated.',
-			'bulk': 'updated'
+			'graph': '{owner} updated graph {name}.', 
+			'layout': '{owner} updated layout {name}.',
+			'group': '{owner} updated group {name}.',
+			'bulk': 'updated.'
 		}
 	},
 	'group':{
 		'share': {
-			'graph': '{owner} shared graph {name}.',
-			'layout': '{owner} shared layout {name}.',
-			'bulk': 'shared'
+			'graph': '{owner} shared graph {name} with the group.',
+			'layout': '{owner} shared layout {name} with the group.',
+			'bulk': 'shared with the group.'
 		},
 		'unshare': {
-			'graph': '{owner} removed graph {name}.',
-			'layout': '{owner} removed layout {name}.',
-			'bulk': 'removed'
+			'graph': '{owner} removed graph {name} from the group.',
+			'layout': '{owner} removed layout {name} from the group.',
+			'bulk': 'removed from the group.'
 		},
 		'add': {
 			'member': '{owner} added {name} to the group.',
-			'bulk': 'additions'
+			'bulk': 'added to the group.'
 		},
 		'remove': {
 			'member': '{owner} removed {name} from the group.',
-			'bulk': 'removed'
+			'bulk': 'removed from the group.'
 		}
 	}
 }

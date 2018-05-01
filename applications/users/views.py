@@ -519,7 +519,7 @@ def _update_group(request, group_id, group={}):
 
     producer.send_message('owner', {
         'owner_email': return_value.get('owner_email', None),
-        'message': settings.NOTIFICATION_MESSAGE['owner']['update']['group'].format(name=return_value.get('name', None)),
+        'message': settings.NOTIFICATION_MESSAGE['owner']['update']['group'].format(name=return_value.get('name', None), , owner=return_value.get('owner_email', None)),
         'resource': 'group',
         'resource_id': group_id,
         'type': 'update'
@@ -559,7 +559,7 @@ def _delete_group(request, group_id):
     # Notification
     producer.send_message('owner', {
         'owner_email': get_request_user(request),
-        'message': settings.NOTIFICATION_MESSAGE['owner']['delete']['group'].format(name=return_value.get('name', None)),
+        'message': settings.NOTIFICATION_MESSAGE['owner']['delete']['group'].format(name=return_value.get('name', None), owner=get_request_user(request)),
         'resource': 'group',
         'resource_id': group_id,
         'type': 'delete'
@@ -721,7 +721,7 @@ def _add_group_member(request, group_id):
     # Notification
     producer.send_message('group', {
         'group_id': group_id,
-        'message': settings.NOTIFICATION_MESSAGE['group']['add']['member'].format(name=member_email),
+        'message': settings.NOTIFICATION_MESSAGE['group']['add']['member'].format(name=member_email, owner=request.session.get('uid', None)),
         'resource': 'group_member',
         'resource_id': group_member['user_id'],
         'type': 'add',
@@ -767,7 +767,7 @@ def _delete_group_member(request, group_id, member_id):
     # Notification
     producer.send_message('group', {
         'group_id': group_id,
-        'message': settings.NOTIFICATION_MESSAGE['group']['remove']['member'].format(name=group_member['email']),
+        'message': settings.NOTIFICATION_MESSAGE['group']['remove']['member'].format(name=group_member['email'], owner=request.session.get('uid', None)),
         'resource': 'group_member',
         'resource_id': group_member['id'],
         'type': 'remove',
@@ -955,7 +955,7 @@ def _add_group_graph(request, group_id):
     # Notification
     producer.send_message('group', {
         'group_id': group_graph['group_id'],   
-        'message': settings.NOTIFICATION_MESSAGE['group']['share']['graph'].format(name=graph.get('name','')),
+        'message': settings.NOTIFICATION_MESSAGE['group']['share']['graph'].format(name=graph.get('name',''), owner=request.session.get('uid', None)),
         'resource': 'graph',
         'resource_id': graph_id,
         'type': 'share',
@@ -1002,7 +1002,7 @@ def _delete_group_graph(request, group_id, graph_id):
     # Notification
     producer.send_message('group', {
         'group_id': group_id,   
-        'message': settings.NOTIFICATION_MESSAGE['group']['unshare']['graph'].format(name=graph.get('name','')),
+        'message': settings.NOTIFICATION_MESSAGE['group']['unshare']['graph'].format(name=graph.get('name',''), owner=request.session.get('uid', None)),
         'resource': 'graph',
         'resource_id': graph_id,
         'type': 'unshare',
