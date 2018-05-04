@@ -171,25 +171,25 @@ NOTIFICATION_GROUP_INTERVAL = 24 * 60 * 60 # 24 hours
 NOTIFICATION_MESSAGE = {
 	'owner': {
 		'upload': {
-			'graph': '{owner} uploaded a new graph {name}.',
-			'bulk': 'uploaded.'
+			'graph': 'You uploaded a new graph {name}.',
+			'bulk': 'You uploaded'
 		},
 		'create': {
-			'layout': '{owner} created a new layout {name}.',
-			'group': '{owner} created new group {name}.',
-			'bulk': 'created.'
+			'layout': 'You created a new layout {name}.',
+			'group': 'You created new group {name}.',
+			'bulk': 'You created'
 		},
 		'delete': {
-			'graph': '{owner} deleted graph {name}.',
-			'layout': '{owner} deleted layout {name}.',
-			'group': '{owner} deleted group {name}.',
-			'bulk': 'removed.'
+			'graph': 'You deleted graph {name}.',
+			'layout': 'You deleted layout {name}.',
+			'group': 'You deleted group {name}.',
+			'bulk': 'You removed'
 		},
 		'update': {
-			'graph': '{owner} updated graph {name}.', 
-			'layout': '{owner} updated layout {name}.',
-			'group': '{owner} updated group {name}.',
-			'bulk': 'updated.'
+			'graph': 'You updated graph {name}.', 
+			'layout': 'You updated layout {name}.',
+			'group': 'You updated group {name}.',
+			'bulk': 'You updated'
 		}
 	},
 	'group':{

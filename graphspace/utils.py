@@ -109,7 +109,7 @@ def owner_notification_bulk_serializer(notify):
 	"""
 	return {
         'id': notify[0],
-        'message': (notify[1] + ' ' + notify[4] + 's ' + settings.NOTIFICATION_MESSAGE['owner'][notify[3]]['bulk']) if notify[2] else notify[1],
+        'message': (settings.NOTIFICATION_MESSAGE['owner'][notify[3]]['bulk'] + notify[1] + ' ' + notify[4] + 's.') if notify[2] else notify[1],
         'is_bulk': notify[2],
         'type': notify[3],
         'resource': notify[4],
